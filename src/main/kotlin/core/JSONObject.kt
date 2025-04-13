@@ -1,6 +1,15 @@
 package core
 
-class JSONObject(override val element: MutableMap<String, JSONElement<*>> = mutableMapOf()) : JSONElement<MutableMap<String, JSONElement<*>>> {
+class JSONObject : JSONElement<MutableMap<String, JSONElement<*>>> {
+    override val element: MutableMap<String, JSONElement<*>>
+
+    constructor(vararg pairs: Pair<String, JSONElement<*>>) {
+        element = pairs.toMap().toMutableMap()
+    }
+
+    constructor(map: Map<String, JSONElement<*>>) {
+        element = map.toMutableMap()
+    }
 
     val keys: Set<String> get() = element.keys
     val values: Collection<JSONElement<*>> get() = element.values
@@ -25,7 +34,6 @@ class JSONObject(override val element: MutableMap<String, JSONElement<*>> = muta
 
     fun filter(predicate: (key: String, value: JSONElement<*>) -> Boolean): JSONObject {
         val result = element.filter { predicate(it.key, it.value) }
-        return JSONObject(result.toMutableMap())
+        return JSONObject(result.toMap())
     }
-
 }

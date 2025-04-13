@@ -9,7 +9,7 @@ class JSONConverter : JSONSerializer(), JSONDeserializer<JSONElement<*>> {
     }
 
     override fun serializeString(element: JSONString): String {
-        return """\"$element\""""
+        return "\"$element\""
     }
 
     override fun serializeBoolean(element: JSONBoolean): String {

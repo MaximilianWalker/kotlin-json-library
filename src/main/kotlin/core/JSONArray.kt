@@ -1,6 +1,15 @@
 package core
 
-class JSONArray(override val element: MutableList<JSONElement<*>>) : JSONElement<MutableList<JSONElement<*>>>, Iterable<JSONElement<*>> {
+class JSONArray : JSONElement<MutableList<JSONElement<*>>>, Iterable<JSONElement<*>> {
+    override val element: MutableList<JSONElement<*>>
+
+    constructor(vararg elements: JSONElement<*>) {
+        element = elements.toMutableList()
+    }
+
+    constructor(elements: List<JSONElement<*>>) {
+        element = elements.toMutableList()
+    }
 
     fun get(index: Int): JSONElement<*> {
         return element[index]
