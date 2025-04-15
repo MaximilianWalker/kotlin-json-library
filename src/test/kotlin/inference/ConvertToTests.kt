@@ -4,7 +4,7 @@ import core.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
-class JSONInferenceTest {
+class ConvertToTests {
 
     @Test
     fun `test convertNumberTo with valid conversions`() {
