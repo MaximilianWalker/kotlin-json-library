@@ -55,8 +55,8 @@ class JSONArray : JSONElement<MutableList<JSONElement<*>>>, Iterable<JSONElement
         element.forEachIndexed { index, value -> callback(index, value) }
     }
 
-    fun map(callback: (value: JSONElement<*>) -> JSONElement<*>): MutableList<JSONElement<*>> {
-        val result = mutableListOf<JSONElement<*>>()
+    fun <T> map(callback: (value: JSONElement<*>) -> T): MutableList<T> {
+        val result = mutableListOf<T>()
         forEach { value -> result.add(callback(value)) }
         return result
     }

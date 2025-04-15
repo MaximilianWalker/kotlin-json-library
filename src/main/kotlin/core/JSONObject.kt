@@ -22,6 +22,10 @@ class JSONObject : JSONElement<MutableMap<String, JSONElement<*>>> {
         element[key] = value
     }
 
+    fun contains(key: String): Boolean {
+        return element.contains(key)
+    }
+
     fun forEach(callback: (key: String, value: JSONElement<*>) -> Unit) {
         element.forEach { (key, value) -> callback(key, value) }
     }
