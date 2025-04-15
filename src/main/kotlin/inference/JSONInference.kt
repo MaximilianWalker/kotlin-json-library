@@ -6,15 +6,15 @@ import kotlin.reflect.full.*
 import kotlin.reflect.jvm.internal.impl.resolve.constants.NullValue
 
 object JSONInference {
-    fun ignoreParameter(parameter: KParameter): Boolean {
+    fun ignoreProperty(parameter: KProperty<*>): Boolean {
         return parameter.annotations.filterIsInstance<JSONIgnore>().isNotEmpty()
     }
 
-    fun getParameterName(parameter: KParameter): String? {
+    fun getPropertyName(parameter: KProperty<*>): String? {
         return parameter.annotations.filterIsInstance<JSONProperty>().firstOrNull()?.name
     }
 
-    fun getParameterAlias(parameter: KParameter): List<String> {
+    fun getPropertyAlias(parameter: KProperty<*>): List<String> {
         return parameter.annotations.filterIsInstance<JSONAlias>().firstOrNull()?.names?.toList() ?: emptyList()
     }
 
@@ -88,8 +88,6 @@ object JSONInference {
         @Suppress("UNCHECKED_CAST")
         return input.map { element ->
             try {
-                println(element)
-                println(elementType)
                 convertTo(element, elementType)
             } catch (e: Exception) {
                 throw IllegalArgumentException(
@@ -103,18 +101,25 @@ object JSONInference {
     fun convertObjectTo(input: JSONObject, targetType: KType): Any {
         val targetClass = targetType.classifier as? KClass<*>
             ?: throw IllegalArgumentException("Invalid target type for object conversion")
+
         require(targetClass.isData) { "The class must be a data class." }
 
         val constructor = targetClass.primaryConstructor
-            ?: throw IllegalArgumentException("Data class must have a primary constructor")
-
         val args = mutableMapOf<KParameter, Any?>()
 
         constructor.parameters.forEach { parameter ->
-            if (ignoreParameter(parameter)) return@forEach
+            val property = targetClass.getProperty(parameter.name!!)
+            val ignored = ignoreProperty(property)
 
-            val name = getParameterName(parameter) ?: parameter.name
-            val aliases = getParameterAlias(parameter)
+            if (ignored && !property.returnType.isMarkedNullable) {
+                throw IllegalArgumentException("Cannot ignore non-nullable property '${property.name}'")
+            } else if (ignoreProperty(property)) {
+                args[parameter] = null
+                return@forEach
+            }
+
+            val name = getPropertyName(property) ?: parameter.name
+            val aliases = getPropertyAlias(property)
 
             val value = when {
                 name != null && input.contains(name) -> input[name]
@@ -122,21 +127,21 @@ object JSONInference {
                 else -> null
             }
 
-            if (value == null && !parameter.type.isMarkedNullable) {
-                throw IllegalArgumentException("Required parameter '${parameter.name}' is missing in the input JSON.")
+            if (value == null && !property.returnType.isMarkedNullable) {
+                throw IllegalArgumentException("Required property '${property.name}' is missing in the input JSON.")
             }
 
             args[parameter] = value?.let { jsonElement ->
-                val paramType = parameter.type
+                val paramType = property.returnType
                 val convertedValue = convertTo(jsonElement, paramType)
 
-                val paramClass = paramType.classifier as? KClass<*>
-                    ?: throw IllegalArgumentException("Invalid type for parameter '${parameter.name}'")
+                val propertyClass = paramType.classifier as? KClass<*>
+                    ?: throw IllegalArgumentException("Invalid type for property '${property.name}'")
 
-                if (!paramClass.isInstance(convertedValue)) {
+                if (!propertyClass.isInstance(convertedValue)) {
                     throw IllegalArgumentException(
-                        "Type mismatch for parameter '${parameter.name}'. " +
-                                "Expected ${paramClass.simpleName}, got ${convertedValue::class.simpleName}"
+                        "Type mismatch for property '${property.name}'. " +
+                                "Expected ${propertyClass.simpleName}, got ${convertedValue::class.simpleName}"
                     )
                 }
 

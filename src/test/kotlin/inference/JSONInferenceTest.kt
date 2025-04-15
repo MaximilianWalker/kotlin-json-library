@@ -109,4 +109,54 @@ class JSONInferenceTest {
             JSONInference.convertTo<String>(jsonNull)
         }
     }
+
+    @Test
+    fun `test convertObjectTo with annotated course`() {
+        val jsonObject = JSONObject(
+            "course_name" to JSONString("Physics"),
+            "course_credits" to JSONNumber(4),
+            "evaluation" to JSONArray(
+                JSONObject(
+                    "item_name" to JSONString("Final Exam"),
+                    "item_percentage" to JSONNumber(70.0),
+                    "is_mandatory" to JSONBoolean(true),
+                    "evaluation_type" to JSONString("EXAM")
+                )
+            )
+        )
+
+        val result = JSONInference.convertTo<AnnotatedCourse>(jsonObject)
+        assertEquals("Physics", result.name)
+        assertEquals(4, result.credits)
+        assertEquals(1, result.evaluation.size)
+        assertEquals("Final Exam", result.evaluation[0].name)
+        assertEquals(70.0, result.evaluation[0].percentage)
+        assertTrue(result.evaluation[0].mandatory)
+        assertEquals(EvalType.EXAM, result.evaluation[0].type)
+    }
+
+    @Test
+    fun `test convertObjectTo with missing ignored field`() {
+        val jsonObject = JSONObject(
+            "course_name" to JSONString("Chemistry"),
+            "course_credits" to JSONNumber(3),
+            "evaluation" to JSONArray(
+                JSONObject(
+                    "item_name" to JSONString("Lab Work"),
+                    "item_percentage" to JSONNumber(50.0),
+                    "is_mandatory" to JSONBoolean(false),
+                    "evaluation_type" to JSONString("PROJECT")
+                )
+            )
+        )
+
+        val result = JSONInference.convertTo<AnnotatedCourse>(jsonObject)
+        assertEquals("Chemistry", result.name)
+        assertEquals(3, result.credits)
+        assertEquals(1, result.evaluation.size)
+        assertEquals("Lab Work", result.evaluation[0].name)
+        assertEquals(50.0, result.evaluation[0].percentage)
+        assertFalse(result.evaluation[0].mandatory)
+        assertEquals(EvalType.PROJECT, result.evaluation[0].type)
+    }
 }
