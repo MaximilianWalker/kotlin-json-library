@@ -2,7 +2,7 @@ package inference
 
 import core.*
 import kotlin.reflect.*
-import kotlin.reflect.full.isSubclassOf
+import kotlin.reflect.full.*
 import kotlin.reflect.jvm.internal.impl.resolve.constants.NullValue
 
 object JSONInference {
@@ -23,73 +23,100 @@ object JSONInference {
     }
 
     inline fun <reified T : Any> convertTo(input: JSONElement<*>): T {
+        return convertTo(input, typeOf<T>())
+    }
+
+    fun <T : Any> convertTo(input: JSONElement<*>, targetType: KType): T {
+        println(input)
+        println(targetType)
         return when (input) {
-            is JSONNumber -> convertNumberTo(input)
-            is JSONString -> convertStringTo(input)
-            is JSONBoolean -> convertBooleanTo(input)
-            is JSONObject -> convertObjectTo(input, this::convertTo)
-            is JSONArray -> convertArrayTo(input, this::convertTo)
-            is JSONNull -> convertNullTo(input)
+            is JSONNumber -> convertNumberTo(input, targetType)
+            is JSONString -> convertStringTo(input, targetType)
+            is JSONBoolean -> convertBooleanTo(input, targetType)
+            is JSONObject -> convertObjectTo(input, targetType)
+            is JSONArray -> convertArrayTo(input, targetType)
+            is JSONNull -> convertNullTo(input, targetType)
         }
     }
 
-    inline fun <reified T : Any> convertNumberTo(input: JSONNumber): T {
-        return when (T::class) {
+    fun <T : Any> convertNumberTo(input: JSONNumber, targetType: KType): T {
+        val targetClass = targetType.classifier as? KClass<*>
+            ?: throw IllegalArgumentException("Invalid target type for number conversion")
+        return when (targetClass) {
             Int::class -> input.element.toInt() as T
             Long::class -> input.element.toLong() as T
             Float::class -> input.element.toFloat() as T
             Double::class -> input.element.toDouble() as T
             Short::class -> input.element.toShort() as T
             Byte::class -> input.element.toByte() as T
-            else -> throw IllegalArgumentException("Cannot convert number to ${T::class.simpleName}")
+            else -> throw IllegalArgumentException("Cannot convert number to ${targetClass.simpleName}")
         }
     }
 
-    inline fun <reified T : Any> convertStringTo(input: JSONString): T {
+    fun <T : Any> convertStringTo(input: JSONString, targetType: KType): T {
+        val targetClass = targetType.classifier as? KClass<*>
+            ?: throw IllegalArgumentException("Invalid target type for string conversion")
         return when {
-            T::class.isSubclassOf(Enum::class) -> {
-                val enumConstants = T::class.java.enumConstants
+            targetClass.isSubclassOf(Enum::class) -> {
+                val enumConstants = targetClass.java.enumConstants
                 enumConstants?.firstOrNull { it.toString() == input.element } as? T
-                    ?: throw IllegalArgumentException("Cannot convert string to enum ${T::class.simpleName}")
+                    ?: throw IllegalArgumentException("Cannot convert string to enum ${targetClass.simpleName}")
             }
 
-            T::class == String::class -> input.element as T
-            else -> throw IllegalArgumentException("Cannot convert string to ${T::class.simpleName}")
+            targetClass == String::class -> input.element as T
+            else -> throw IllegalArgumentException("Cannot convert string to ${targetClass.simpleName}")
         }
     }
 
-    inline fun <reified T : Any> convertBooleanTo(input: JSONBoolean): T {
-        return when (T::class) {
+    fun <T : Any> convertBooleanTo(input: JSONBoolean, targetType: KType): T {
+        val targetClass = targetType.classifier as? KClass<*>
+            ?: throw IllegalArgumentException("Invalid target type for boolean conversion")
+        return when (targetClass) {
             Boolean::class -> input.element as T
-            else -> throw IllegalArgumentException("Cannot convert boolean to ${T::class.simpleName}")
+            else -> throw IllegalArgumentException("Cannot convert boolean to ${targetClass.simpleName}")
         }
     }
 
-    inline fun <reified T : Any> convertArrayTo(input: JSONArray, converter: (JSONElement<*>) -> Any?): T {
-        if (!T::class.isSubclassOf(List::class)) {
-            throw IllegalArgumentException("Input is JSONArray, but target type is not a List: ${T::class.simpleName}. Expected List<...>.")
+    fun <T : Any> convertArrayTo(input: JSONArray, targetType: KType): T {
+        val targetClass = targetType.classifier as? KClass<*>
+            ?: throw IllegalArgumentException("Invalid target type for array conversion")
+
+        if (!targetClass.isSubclassOf(List::class)) {
+            throw IllegalArgumentException("Input is JSONArray, but target type is not a List: ${targetType}. Expected List<...>.")
         }
 
-        val type = typeOf<T>().arguments.firstOrNull()?.type
-        val clazz = type?.classifier as? KClass<*>
-            ?: throw IllegalArgumentException("Could not determine element type for List: ${T::class.simpleName}. Ensure List has a concrete type argument.")
+        val elementType = targetType.arguments.firstOrNull()?.type
+            ?: throw IllegalArgumentException("Could not determine element type for List: $targetType")
 
-        return input.map<List<*>> {
+        val elementTypeClass = elementType.classifier as? KClass<*>
+            ?: throw IllegalArgumentException("Could not find any class for element type List")
+
+        println(targetClass)
+        println(elementTypeClass)
+
+        @Suppress("UNCHECKED_CAST")
+        return input.map { element ->
             try {
-                converter(it)
+                println(element)
+                println(elementType)
+                convertTo(element, elementType)
             } catch (e: Exception) {
                 throw IllegalArgumentException(
-                    "Error converting element in JSONArray to ${clazz.simpleName}: ${e.message}",
+                    "Error converting element in JSONArray to ${elementTypeClass.simpleName}: ${e.message}",
                     e
                 )
             }
         } as T
     }
 
-    inline fun <reified T : Any> convertObjectTo(input: JSONObject, converter: (JSONElement<*>) -> Any?): T {
-        require(T::class.isData) { "The class must be a data class." }
+    fun <T : Any> convertObjectTo(input: JSONObject, targetType: KType): T {
+        val targetClass = targetType.classifier as? KClass<*>
+            ?: throw IllegalArgumentException("Invalid target type for object conversion")
+        require(targetClass.isData) { "The class must be a data class." }
 
-        val constructor = T::class.primaryConstructor
+        val constructor = targetClass.primaryConstructor
+            ?: throw IllegalArgumentException("Data class must have a primary constructor")
+
         val args = mutableMapOf<KParameter, Any?>()
 
         constructor.parameters.forEach { parameter ->
@@ -109,13 +136,16 @@ object JSONInference {
                 throw IllegalArgumentException("Required parameter '${parameter.name}' is missing in the input JSON.")
             }
 
-            args[parameter] = value?.let { converter(it) }
+            args[parameter] = value?.let {
+                val paramType = parameter.type
+                convertTo(it, paramType)
+            }
         }
 
-        return constructor.callBy(args)
+        return constructor.callBy(args) as T
     }
 
-    inline fun <reified T : Any> convertNullTo(input: JSONNull): T {
+    fun <T : Any> convertNullTo(input: JSONNull, targetType: KType): T {
         return NullValue() as T
     }
 
