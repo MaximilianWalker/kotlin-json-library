@@ -22,6 +22,47 @@ object JSONInference {
         return convertTo(input, typeOf<T>()) as T
     }
 
+    inline fun <reified T> convertFrom(input: T): JSONElement<*> {
+        return convertFrom(input, typeOf<T>())
+    }
+
+    fun <T> convertFrom(input: T, targetType: KType): JSONElement<*> {
+        val targetClass = targetType.classifier as? KClass<*>
+            ?: throw IllegalArgumentException("Invalid target type for object conversion")
+
+        return when (input) {
+            is Number -> JSONNumber(input)
+            is Boolean -> JSONBoolean(input)
+            is String -> JSONString(input)
+            is Enum<*> -> JSONString(input.name)
+            is Array<*> ->  JSONArray(input.map { convertFrom(it, targetType.getFirstTypeArgument()) })
+            is Iterable<*> -> JSONArray(input.map { convertFrom(it, targetType.getFirstTypeArgument()) })
+            is Map<*, *> -> JSONObject(input.entries.associate {
+                (key, value) -> key.toString() to convertFrom(value, targetType.getFirstTypeArgument())
+            })
+            null -> JSONNull
+            else -> {
+                if (!targetClass.isData)
+                    throw IllegalArgumentException("Unsupported type for conversion to JSON: ${targetClass.qualifiedName}")
+
+                val constructor = targetClass.primaryConstructor
+                val result = mutableMapOf<String, JSONElement<*>>()
+
+                for (param in constructor.parameters) {
+                    val property = targetClass.getProperty(param.name!!)
+                    if (ignoreProperty(property))
+                        continue
+
+                    val key = getPropertyName(property) ?: param.name ?: throw IllegalArgumentException("Property name cannot be null")
+                    val value = property.getter.call(input)
+                    result[key] = convertFrom(value, param.type)
+                }
+
+                JSONObject(result)
+            }
+        }
+    }
+
     fun convertTo(input: JSONElement<*>, targetType: KType): Any {
         return when (input) {
             is JSONNumber -> convertNumberTo(input, targetType)
@@ -29,7 +70,7 @@ object JSONInference {
             is JSONBoolean -> convertBooleanTo(input, targetType)
             is JSONObject -> convertObjectTo(input, targetType)
             is JSONArray -> convertArrayTo(input, targetType)
-            is JSONNull -> convertNullTo(input, targetType)
+            is JSONNull -> convertNullTo(targetType)
         }
     }
 
@@ -152,11 +193,9 @@ object JSONInference {
         return constructor.callBy(args)
     }
 
-    fun convertNullTo(input: JSONNull, targetType: KType): NullValue {
+    fun convertNullTo(targetType: KType): NullValue {
+        if (!targetType.isMarkedNullable)
+            throw IllegalArgumentException("Cannot convert JSONNull to non-nullable type: $targetType")
         return NullValue()
-    }
-
-    fun <T> convertFrom(input: T): JSONElement<*> {
-        return JSONNull
     }
 }

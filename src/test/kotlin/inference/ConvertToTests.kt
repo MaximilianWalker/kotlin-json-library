@@ -105,7 +105,7 @@ class ConvertToTests {
     @Test
     fun `test convertNullTo`() {
         val jsonNull = JSONNull
-        assertThrows(ClassCastException::class.java) {
+        assertThrows(IllegalArgumentException::class.java) {
             JSONInference.convertTo<String>(jsonNull)
         }
     }

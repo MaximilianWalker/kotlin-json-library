@@ -22,3 +22,17 @@ fun <T : Any> KClass<T>.getProperty(name: String): KProperty<T> {
     return this.properties.find { it.name == name }
         ?: throw NoSuchElementException("Property '$name' not found in class '${this.simpleName}'.")
 }
+
+fun <T : Any> KClass<T>.getProperty1(name: String): KProperty1<T, *> {
+    return getProperty(name) as KProperty1<T, *>
+}
+
+fun KType.getFirstTypeArgument(): KType {
+    return this.arguments.firstOrNull()?.type
+        ?: throw IllegalArgumentException("Could not determine first type argument for $this")
+}
+
+fun KType.getSecondTypeArgument(): KType {
+    return this.arguments[1].type
+        ?: throw IllegalArgumentException("Could not determine second type argument for $this")
+}
