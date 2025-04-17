@@ -64,7 +64,7 @@ class JSONConverter : JSONSerializer, JSONDeserializer {
 
     override fun deserializeString(input: String): JSONString {
         val cleanInput = input.removeSurrounding("\"")
-        return JSONString(cleanInput.substring(1, cleanInput.length - 1))
+        return JSONString(cleanInput)
     }
 
     override fun deserializeBoolean(input: String): JSONBoolean {
@@ -82,8 +82,7 @@ class JSONConverter : JSONSerializer, JSONDeserializer {
         val elements = splitByComma(cleanInput).associate { element ->
             val (key, value) = element.split(":", limit = 2).map { it.trim() }
             val cleanKey = key.removeSurrounding("\"")
-            val cleanValue = value.removeSurrounding("\"")
-            cleanKey to deserialize(cleanValue)
+            cleanKey to deserialize(value)
         }
         return JSONObject(elements.toMutableMap())
     }

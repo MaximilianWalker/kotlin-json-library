@@ -8,7 +8,14 @@ class JSONNumber(override val element: Number) : JSONElement<Number> {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is JSONNumber) return false
-        return element == other.element
+        return when (element) {
+            is Int -> element == other.element.toInt()
+            is Double -> element == other.element.toDouble()
+            is Float -> element == other.element.toFloat()
+            is Long -> element == other.element.toLong()
+            is Short -> element == other.element.toShort()
+            else -> false
+        }
     }
 
     override fun hashCode(): Int {

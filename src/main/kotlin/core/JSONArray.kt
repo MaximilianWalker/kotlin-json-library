@@ -9,8 +9,8 @@ class JSONArray(override val element: MutableList<JSONElement<*>>) :
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is JSONArray) return false
-        return (0..element.size - 1).map { this[it].equals(other[it]) }.reduce { a, b -> a && b }
+        if (other !is JSONArray || size != other.size) return false
+        return (0..<size).all { this[it] == other[it] }
     }
 
     override fun hashCode(): Int {
