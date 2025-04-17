@@ -85,7 +85,7 @@ class JSONConverter : JSONSerializer, JSONDeserializer {
             val cleanValue = value.removeSurrounding("\"")
             cleanKey to deserialize(cleanValue)
         }
-        return JSONObject(elements)
+        return JSONObject(elements.toMutableMap())
     }
 
     //endregion

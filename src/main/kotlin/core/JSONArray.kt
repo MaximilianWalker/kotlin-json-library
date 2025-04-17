@@ -3,13 +3,9 @@ package core
 class JSONArray(override val element: MutableList<JSONElement<*>>) :
     JSONElement<MutableList<JSONElement<*>>>, MutableList<JSONElement<*>> by element {
 
+        // Same VVM Signature Bug
+//    constructor(elements: List<JSONElement<*>>) : this(elements.toMutableList())
     constructor(vararg elements: JSONElement<*>) : this(elements.toMutableList())
-
-    fun <T> map(callback: (value: JSONElement<*>) -> T): MutableList<T> {
-        val result = mutableListOf<T>()
-        forEach { value -> result.add(callback(value)) }
-        return result
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

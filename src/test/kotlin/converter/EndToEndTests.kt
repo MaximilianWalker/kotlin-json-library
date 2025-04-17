@@ -43,7 +43,7 @@ class EndToEndTests {
 
     @Test
     fun `test serialize and deserialize object`() {
-        val obj = JSONObject(mapOf("key" to JSONString("value")))
+        val obj = JSONObject("key" to JSONString("value"))
         val serialized = converter.serializeObject(obj, JSONSerializationOptions())
         val deserialized = converter.deserializeObject(serialized)
         assertEquals(obj, deserialized)

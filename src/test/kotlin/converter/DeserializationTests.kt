@@ -40,6 +40,6 @@ class DeserializationTests {
     fun `test deserializeObject`() {
         val input = "{\"key\":\"value\"}"
         val result = converter.deserializeObject(input)
-        assertEquals(JSONObject(mapOf("key" to JSONString("value"))), result)
+        assertEquals(JSONObject("key" to JSONString("value")), result)
     }
 }

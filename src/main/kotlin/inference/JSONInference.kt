@@ -39,7 +39,7 @@ object JSONInference {
             is Iterable<*> -> JSONArray(input.map { convertFrom(it, targetType.getFirstTypeArgument()) }.toMutableList())
             is Map<*, *> -> JSONObject(input.entries.associate {
                 (key, value) -> key.toString() to convertFrom(value, targetType.getFirstTypeArgument())
-            })
+            }.toMutableMap())
             null -> JSONNull
             else -> {
                 if (!targetClass.isData)
