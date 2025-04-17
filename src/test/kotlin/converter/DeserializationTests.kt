@@ -33,7 +33,7 @@ class DeserializationTests {
     fun `test deserializeArray`() {
         val input = "[1, 2, 3]"
         val result = converter.deserializeArray(input)
-        assertEquals(JSONArray(listOf(JSONNumber(1), JSONNumber(2), JSONNumber(3))), result)
+        assertEquals(JSONArray(JSONNumber(1), JSONNumber(2), JSONNumber(3)), result)
     }
 
     @Test

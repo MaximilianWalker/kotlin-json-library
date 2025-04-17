@@ -74,7 +74,7 @@ class JSONConverter : JSONSerializer, JSONDeserializer {
     override fun deserializeArray(input: String): JSONArray {
         val cleanInput = input.removeSurrounding("[", "]")
         val elements = splitByComma(cleanInput).map { deserialize(it) }
-        return JSONArray(elements)
+        return JSONArray(elements.toMutableList())
     }
 
     override fun deserializeObject(input: String): JSONObject {

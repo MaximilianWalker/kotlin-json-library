@@ -35,8 +35,8 @@ object JSONInference {
             is Boolean -> JSONBoolean(input)
             is String -> JSONString(input)
             is Enum<*> -> JSONString(input.name)
-            is Array<*> ->  JSONArray(input.map { convertFrom(it, targetType.getFirstTypeArgument()) })
-            is Iterable<*> -> JSONArray(input.map { convertFrom(it, targetType.getFirstTypeArgument()) })
+            is Array<*> ->  JSONArray(input.map { convertFrom(it, targetType.getFirstTypeArgument()) }.toMutableList())
+            is Iterable<*> -> JSONArray(input.map { convertFrom(it, targetType.getFirstTypeArgument()) }.toMutableList())
             is Map<*, *> -> JSONObject(input.entries.associate {
                 (key, value) -> key.toString() to convertFrom(value, targetType.getFirstTypeArgument())
             })

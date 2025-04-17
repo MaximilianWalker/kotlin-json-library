@@ -35,7 +35,7 @@ class EndToEndTests {
 
     @Test
     fun `test serialize and deserialize array`() {
-        val array = JSONArray(listOf(JSONNumber(1), JSONNumber(2), JSONNumber(3)))
+        val array = JSONArray(JSONNumber(1), JSONNumber(2), JSONNumber(3))
         val serialized = converter.serializeArray(array, JSONSerializationOptions())
         val deserialized = converter.deserializeArray(serialized)
         assertEquals(array, deserialized)
