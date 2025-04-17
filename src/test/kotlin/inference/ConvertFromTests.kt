@@ -3,6 +3,8 @@ package inference
 import core.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import kotlin.reflect.jvm.internal.impl.resolve.constants.NullValue
+import kotlin.reflect.typeOf
 
 class ConvertFromTests {
 
@@ -32,7 +34,7 @@ class ConvertFromTests {
 
     @Test
     fun `test convertFrom with null`() {
-        val jsonElement = JSONInference.convertFrom(null)
+        val jsonElement = JSONInference.convertFrom(null, typeOf<NullValue>())
         assertTrue(jsonElement is JSONNull)
     }
 

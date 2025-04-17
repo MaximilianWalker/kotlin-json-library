@@ -4,9 +4,29 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.example</groupId>
+    <groupId>pt.iscte.pa</groupId>
     <artifactId>JSON_Library</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <name>Kotlin JSON Library</name>
+    <description>A Kotlin-based library for JSON serialization, deserialization, and validation.</description>
+    <url>https://github.com/MaximilianWalker/kotlin-json-library</url>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/licenses/MIT</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>MaximilianWalker</id>
+            <name>Diogo Crava</name>
+            <email>me@diogocrava.dev</email>
+            <url>https://github.com/MaximilianWalker</url>
+        </developer>
+    </developers>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

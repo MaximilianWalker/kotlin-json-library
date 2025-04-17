@@ -2,10 +2,8 @@ package converter
 
 import core.*
 import deserializer.JSONDeserializer
-import deserializer.JSONParsingException
 import serializer.JSONSerializationOptions
 import serializer.JSONSerializer
-import java.security.InvalidParameterException
 
 class JSONConverter : JSONSerializer, JSONDeserializer {
 
