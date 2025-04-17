@@ -1,5 +1,5 @@
 package deserializer
 
 interface Deserializer<TInput, TOutput> {
-    fun serialize(input: TInput): TOutput
+    fun deserialize(input: TInput): TOutput
 }

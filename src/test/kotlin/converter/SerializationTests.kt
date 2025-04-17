@@ -1,10 +1,11 @@
-package serializer
+package converter
 
 import core.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import serializer.JSONSerializationOptions
 
-class JSONConverterTest {
+class SerializationTests {
 
     private val converter = JSONConverter()
     private val defaultOptions = JSONSerializationOptions(prettyPrint = false, sortKeys = false, indent = "  ")
@@ -34,7 +35,7 @@ class JSONConverterTest {
     @Test
     fun `test array serialization`() {
         val jsonArray = JSONArray(JSONNumber(1), JSONNumber(2), JSONNumber(3))
-        val result = converter.serialize(jsonArray, defaultOptions)
+        val result = converter.serializeWithOptions(jsonArray, defaultOptions)
         assertEquals("[1,2,3]", result)
     }
 
@@ -43,7 +44,7 @@ class JSONConverterTest {
         val jsonObject = JSONObject()
         jsonObject["name"] = JSONString("Test")
         jsonObject["age"] = JSONNumber(30)
-        val result = converter.serialize(jsonObject, defaultOptions)
+        val result = converter.serializeWithOptions(jsonObject, defaultOptions)
         // Expected order: "name" then "age" based on insertion
         assertEquals("{\"name\":\"Test\",\"age\":30}", result)
     }
@@ -60,7 +61,7 @@ class JSONConverterTest {
         val jsonObject = JSONObject()
         jsonObject["title"] = JSONString("Book")
         jsonObject["price"] = JSONNumber(9.99)
-        val result = converter.serialize(jsonObject, options)
+        val result = converter.serializeWithOptions(jsonObject, options)
         assertTrue(result.contains("\n") && result.contains("  "))
     }
 
@@ -70,7 +71,7 @@ class JSONConverterTest {
         val jsonObject = JSONObject()
         jsonObject["bKey"] = JSONNumber(2)
         jsonObject["aKey"] = JSONNumber(1)
-        val result = converter.serialize(jsonObject, options)
+        val result = converter.serializeWithOptions(jsonObject, options)
         // Keys should be sorted alphabetically: aKey first, then bKey
         assertEquals("""{"aKey":1,"bKey":2}""", result)
     }
@@ -78,7 +79,7 @@ class JSONConverterTest {
     @Test
     fun `test escaping quotes in keys`() {
         val jsonObject = JSONObject("\"key\"" to JSONString("value"))
-        val result = converter.serialize(jsonObject, defaultOptions)
+        val result = converter.serializeWithOptions(jsonObject, defaultOptions)
         assertEquals("""{"\"key\"":"value"}""", result)
     }
 }

@@ -60,4 +60,14 @@ class JSONArray : JSONElement<MutableList<JSONElement<*>>>, Iterable<JSONElement
         forEach { value -> result.add(callback(value)) }
         return result
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is JSONArray) return false
+        return (0..element.size - 1).map { element[it].equals(other[it] as JSONArray) }.reduce { a, b -> a && b }
+    }
+
+    override fun hashCode(): Int {
+        return element.hashCode()
+    }
 }

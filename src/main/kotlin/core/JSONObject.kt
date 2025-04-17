@@ -40,4 +40,14 @@ class JSONObject : JSONElement<MutableMap<String, JSONElement<*>>> {
         val result = element.filter { predicate(it.key, it.value) }
         return JSONObject(result.toMap())
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is JSONObject) return false
+        return element == other.element
+    }
+
+    override fun hashCode(): Int {
+        return element.hashCode()
+    }
 }

@@ -1,3 +1,3 @@
 package deserializer
 
-interface TextDeserializer<T> : Deserializer<T, String>
+interface TextDeserializer<T> : Deserializer<String, T>

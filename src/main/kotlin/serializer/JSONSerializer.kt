@@ -2,12 +2,12 @@ package serializer
 
 import core.*
 
-abstract class JSONSerializer : TextSerializer<JSONElement<*>, JSONSerializationOptions> {
+interface JSONSerializer : TextSerializer<JSONElement<*>, JSONSerializationOptions> {
     override fun serialize(input: JSONElement<*>): String {
-        return serialize(input, JSONSerializationOptions())
+        return serializeWithOptions(input, JSONSerializationOptions())
     }
 
-    override fun serialize(input: JSONElement<*>, options: JSONSerializationOptions): String {
+    override fun serializeWithOptions(input: JSONElement<*>, options: JSONSerializationOptions): String {
         return when (input) {
             is JSONNumber -> serializeNumber(input)
             is JSONString -> serializeString(input)
@@ -18,10 +18,10 @@ abstract class JSONSerializer : TextSerializer<JSONElement<*>, JSONSerialization
         }
     }
 
-    protected abstract fun serializeNumber(element: JSONNumber): String
-    protected abstract fun serializeString(element: JSONString): String
-    protected abstract fun serializeBoolean(element: JSONBoolean): String
-    protected abstract fun serializeArray(element: JSONArray, options: JSONSerializationOptions): String
-    protected abstract fun serializeObject(element: JSONObject, options: JSONSerializationOptions): String
-    protected abstract fun serializeNull(): String
+    fun serializeNumber(element: JSONNumber): String
+    fun serializeString(element: JSONString): String
+    fun serializeBoolean(element: JSONBoolean): String
+    fun serializeArray(element: JSONArray, options: JSONSerializationOptions): String
+    fun serializeObject(element: JSONObject, options: JSONSerializationOptions): String
+    fun serializeNull(): String
 }
