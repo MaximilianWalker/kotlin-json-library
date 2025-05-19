@@ -89,35 +89,36 @@ class JSONConverter : JSONSerializer, JSONDeserializer {
 
     //region Serialization
 
-    override fun serializeNumber(element: JSONNumber): String {
-        return element.toString()
+    override fun serializeNumber(jsonElement: JSONNumber): String {
+        return jsonElement.element.toString()
     }
 
-    override fun serializeString(element: JSONString): String {
-        return "\"$element\""
+    override fun serializeString(jsonElement: JSONString): String {
+        val output = jsonElement.element
+        return "\"$output\""
     }
 
-    override fun serializeBoolean(element: JSONBoolean): String {
-        return element.toString().lowercase()
+    override fun serializeBoolean(jsonElement: JSONBoolean): String {
+        return jsonElement.element.toString().lowercase()
     }
 
-    override fun serializeArray(element: JSONArray, options: JSONSerializationOptions): String {
+    override fun serializeArray(jsonElement: JSONArray, options: JSONSerializationOptions): String {
         if (options.prettyPrint) {
-            val inner = element.joinToString(",\n") {
+            val inner = jsonElement.element.joinToString(",\n") {
                 options.indent + serializeWithOptions(it, options).prependIndent(options.indent)
             }
             return "[\n$inner\n]"
         }
-        return "[${element.joinToString(",") { serializeWithOptions(it, options) }}]"
+        return "[${jsonElement.element.joinToString(",") { serializeWithOptions(it, options) }}]"
     }
 
-    override fun serializeObject(element: JSONObject, options: JSONSerializationOptions): String {
-        val keys = if (options.sortKeys) element.keys.sorted() else element.keys
+    override fun serializeObject(jsonElement: JSONObject, options: JSONSerializationOptions): String {
+        val keys = if (options.sortKeys) jsonElement.element.keys.sorted() else jsonElement.element.keys
 
         if (options.prettyPrint) {
             val inner = keys.joinToString(",\n") { key ->
                 val safeKey = "\"" + key.replace("\"", "\\\"") + "\""
-                val value = element[key]?.let { serializeWithOptions(it, options) }?.prependIndent(options.indent) ?: "null"
+                val value = jsonElement.element[key]?.let { serializeWithOptions(it, options) }?.prependIndent(options.indent) ?: "null"
                 "${options.indent}$safeKey: $value"
             }
             return "{\n$inner\n}"
@@ -125,7 +126,7 @@ class JSONConverter : JSONSerializer, JSONDeserializer {
 
         val inner = keys.joinToString(",") { key ->
             val safeKey = "\"" + key.replace("\"", "\\\"") + "\""
-            val value = element[key]?.let { serializeWithOptions(it, options) } ?: "null"
+            val value = jsonElement.element[key]?.let { serializeWithOptions(it, options) } ?: "null"
             "$safeKey:$value"
         }
 

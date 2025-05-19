@@ -18,10 +18,10 @@ interface JSONSerializer : TextSerializer<JSONElement<*>, JSONSerializationOptio
         }
     }
 
-    fun serializeNumber(element: JSONNumber): String
-    fun serializeString(element: JSONString): String
-    fun serializeBoolean(element: JSONBoolean): String
-    fun serializeArray(element: JSONArray, options: JSONSerializationOptions): String
-    fun serializeObject(element: JSONObject, options: JSONSerializationOptions): String
+    fun serializeNumber(jsonElement: JSONNumber): String
+    fun serializeString(jsonElement: JSONString): String
+    fun serializeBoolean(jsonElement: JSONBoolean): String
+    fun serializeArray(jsonElement: JSONArray, options: JSONSerializationOptions): String
+    fun serializeObject(jsonElement: JSONObject, options: JSONSerializationOptions): String
     fun serializeNull(): String
 }
