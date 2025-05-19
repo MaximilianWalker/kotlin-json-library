@@ -40,9 +40,9 @@ class JSONConverter : JSONSerializer, JSONDeserializer {
 
     override fun deserializeNumber(input: String): JSONNumber {
         val parsers: List<(input: String) -> Number> = listOf(
+            { it.toInt() },
             { it.toByte() },
             { it.toShort() },
-            { it.toInt() },
             { it.toLong() },
             { it.toBigInteger() },
             { it.toFloat() },

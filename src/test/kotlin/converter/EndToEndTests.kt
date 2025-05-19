@@ -29,7 +29,9 @@ class EndToEndTests {
     fun `test serialize and deserialize boolean`() {
         val boolean = JSONBoolean(true)
         val serialized = converter.serializeBoolean(boolean)
+        println(serialized)
         val deserialized = converter.deserializeBoolean(serialized)
+        println(deserialized)
         assertEquals(boolean, deserialized)
     }
 
