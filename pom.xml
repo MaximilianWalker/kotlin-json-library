@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>pt.iscte.pa</groupId>
-    <artifactId>JSON_Library</artifactId>
+    <artifactId>ISCTE-JSON</artifactId>
     <version>1.0-SNAPSHOT</version>
     <name>Kotlin JSON Library</name>
     <description>A Kotlin-based library for JSON serialization, deserialization, and validation.</description>
