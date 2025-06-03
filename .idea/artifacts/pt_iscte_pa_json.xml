@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="pt.iscte.pa.json">
+    <output-path>$PROJECT_DIR$/out/artifacts/pt_iscte_pa_json</output-path>
+    <root id="archive" name="pt.iscte.pa.json.jar">
+      <element id="module-output" name="ISCTE-JSON" />
+      <element id="library" level="project" name="Maven: org.jetbrains.kotlin:kotlin-stdlib:2.1.10" />
+      <element id="library" level="project" name="jetbrains.kotlin.reflect" />
+    </root>
+  </artifact>
+</component>
